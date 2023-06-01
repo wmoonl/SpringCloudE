@@ -9,7 +9,7 @@
         <version>2.3.12.RELEASE</version>
         <relativePath />
     </parent>
-    <groupId>club.sh1nyu</groupId>
+    <groupId>club.comm</groupId>
     <artifactId>cloud</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>

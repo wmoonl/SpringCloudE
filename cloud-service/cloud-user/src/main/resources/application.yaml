@@ -58,7 +58,7 @@
 #              rule-type: param-flow
 #mybatis:
 #  mapperLocations: classpath*:mapper/*.xml
-#  typeAliasesPackage: club.sh1nyu
+#  typeAliasesPackage: club.comm
 #actuator 监控 开放所有页面节点  默认只开启了health、info两个节点
 ##management:
 ##  endpoints:

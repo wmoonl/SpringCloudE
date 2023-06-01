@@ -25,4 +25,4 @@
 #        ephemeral: true
 #mybatis:
 #  mapperLocations: classpath*:mapper/*.xml
-#  typeAliasesPackage: club.sh1nyu
+#  typeAliasesPackage: club.comm
