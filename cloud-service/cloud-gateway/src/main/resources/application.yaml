@@ -1,0 +1,31 @@
+#server:
+#  port: 10010
+#spring:
+#  application:
+#    name: cloud-gateway
+#  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: 127.0.0.1:8848
+#        namespace: 805a3a84-bd5e-4ffa-ac3b-03b05202d43e
+#    gateway:
+#      discovery:
+#        locator:
+#          enabled: true #开启从注册中心动态创建路由的功能，利用微服务名进行路由
+#      default-filters:
+#        - AddRequestHeader=origin,cloud-gateway
+#      routes:
+#        - id: cloud-user-routh
+#          #uri: http://127.0.0.1:9001
+#          uri: lb://cloud-user
+#          predicates:
+#            - Path=/user/mgt/**
+#          filters:
+#            - AddRequestHeader=origin, cloud-user
+#        - id: cloud-goods-routh
+#          #uri: http://127.0.0.1:9001
+#          uri: lb://cloud-goods
+#          predicates:
+#            - Path=/goods/mgt/**
+#          filters:
+#            - AddRequestHeader=origin, cloud-goods
