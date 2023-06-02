@@ -8,3 +8,4 @@ The examples demonstrate:
 - How to use Apache RocketMQ client with Sentinel
 - How to use Sentinel annotation support
 - How to add your own logic to Sentinel using Slot Chain SPI
+
