@@ -1,1 +1,1 @@
-基于sentinel的改造
+Retrofit based on sentinel
