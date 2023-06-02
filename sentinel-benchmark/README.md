@@ -1,1 +1,0 @@
-Retrofit based on sentinel
