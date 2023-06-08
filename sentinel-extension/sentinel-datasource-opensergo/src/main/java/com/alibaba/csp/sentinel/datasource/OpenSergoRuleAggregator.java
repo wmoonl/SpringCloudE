@@ -71,7 +71,7 @@ public class OpenSergoRuleAggregator {
         if (rules != null && !rules.isEmpty()) {
             for (FaultToleranceRule rule : rules) {
                 Set<String> kinds = rule.getStrategiesList().stream()
-                        .map(e -> e.getKind()).collect(Collectors.toSet());
+                    .map(e -> e.getKind()).collect(Collectors.toSet());
                 kinds.forEach(kindName -> map.computeIfAbsent(kindName, v -> new ArrayList<>()).add(rule));
             }
         }
@@ -128,12 +128,11 @@ public class OpenSergoRuleAggregator {
         List<FlowRule> rules = new ArrayList<>();
 
         List<FlowRule> rulesFromRateLimitStrategies = assembleFlowRulesFromRateLimitStrategies(
-                ftRuleMapByStrategyKind.get(ConfigKind.RATE_LIMIT_STRATEGY.getSimpleKindName()), rateLimitStrategyMap);
+            ftRuleMapByStrategyKind.get(ConfigKind.RATE_LIMIT_STRATEGY.getSimpleKindName()), rateLimitStrategyMap);
         List<FlowRule> rulesFromThrottlingStrategies = assembleFlowRulesFromThrottlingStrategies(
-                ftRuleMapByStrategyKind.get(ConfigKind.THROTTLING_STRATEGY.getSimpleKindName()), throttlingStrategyMap);
+            ftRuleMapByStrategyKind.get(ConfigKind.THROTTLING_STRATEGY.getSimpleKindName()), throttlingStrategyMap);
         List<FlowRule> rulesConcurrencyLimitStrategies = assembleFlowRulesFromConcurrencyLimitStrategies(
-                ftRuleMapByStrategyKind
-                        .get(ConfigKind.CONCURRENCY_LIMIT_STRATEGY.getSimpleKindName()), concurrencyLimitStrategyMap);
+            ftRuleMapByStrategyKind.get(ConfigKind.CONCURRENCY_LIMIT_STRATEGY.getSimpleKindName()), concurrencyLimitStrategyMap);
 
         rules.addAll(rulesFromRateLimitStrategies);
         rules.addAll(rulesFromThrottlingStrategies);
@@ -145,8 +144,8 @@ public class OpenSergoRuleAggregator {
 
     private boolean handleCircuitBreakerRuleUpdate() {
         List<DegradeRule> rules = assembleDegradeRulesFromCbStrategies(
-                ftRuleMapByStrategyKind.get(ConfigKind.CIRCUIT_BREAKER_STRATEGY.getSimpleKindName()),
-                circuitBreakerStrategyMap);
+            ftRuleMapByStrategyKind.get(ConfigKind.CIRCUIT_BREAKER_STRATEGY.getSimpleKindName()),
+            circuitBreakerStrategyMap);
 
         // Update rules to upstream data-source.
         return dataSourceMap.get(OpenSergoSentinelConstants.KIND_CIRCUIT_BREAKER_RULE).updateValue(rules);
@@ -160,10 +159,10 @@ public class OpenSergoRuleAggregator {
         }
         for (FaultToleranceRule ftRule : ftRules) {
             List<RateLimitStrategy> strategies = ftRule.getStrategiesList().stream()
-                    .filter(e -> e.getKind().equals(ConfigKind.RATE_LIMIT_STRATEGY.getSimpleKindName()))
-                    .map(e -> rateLimitStrategyMap.get(e.getName()))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                .filter(e -> e.getKind().equals(ConfigKind.RATE_LIMIT_STRATEGY.getSimpleKindName()))
+                .map(e -> rateLimitStrategyMap.get(e.getName()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
             if (strategies.isEmpty()) {
                 continue;
             }
@@ -180,7 +179,7 @@ public class OpenSergoRuleAggregator {
                         }
                     } catch (Exception ex) {
                         RecordLog.warn("Ignoring OpenSergo RateLimitStrategy due to covert failure, "
-                                + "resourceName={}, strategy={}", resourceName, strategy);
+                            + "resourceName={}, strategy={}", resourceName, strategy);
                     }
                 }
             }
@@ -189,17 +188,17 @@ public class OpenSergoRuleAggregator {
     }
 
     private List<FlowRule> assembleFlowRulesFromConcurrencyLimitStrategies(List<FaultToleranceRule> ftRules,
-                                                                           Map<String, ConcurrencyLimitStrategy> concurrencyLimitStrategyMap) {
+                                                                    Map<String, ConcurrencyLimitStrategy> concurrencyLimitStrategyMap) {
         List<FlowRule> rules = new ArrayList<>();
         if (ftRules == null || ftRules.isEmpty()) {
             return rules;
         }
         for (FaultToleranceRule ftRule : ftRules) {
             List<ConcurrencyLimitStrategy> strategies = ftRule.getStrategiesList().stream()
-                    .filter(e -> e.getKind().equals(ConfigKind.CONCURRENCY_LIMIT_STRATEGY.getSimpleKindName()))
-                    .map(e -> concurrencyLimitStrategyMap.get(e.getName()))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                .filter(e -> e.getKind().equals(ConfigKind.CONCURRENCY_LIMIT_STRATEGY.getSimpleKindName()))
+                .map(e -> concurrencyLimitStrategyMap.get(e.getName()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
             if (strategies.isEmpty()) {
                 continue;
             }
@@ -216,7 +215,7 @@ public class OpenSergoRuleAggregator {
                         }
                     } catch (Exception ex) {
                         RecordLog.warn("Ignoring OpenSergo ConcurrencyLimitStrategy due to covert failure, "
-                                + "resourceName={}, strategy={}", resourceName, strategy);
+                            + "resourceName={}, strategy={}", resourceName, strategy);
                     }
                 }
             }
@@ -232,10 +231,10 @@ public class OpenSergoRuleAggregator {
         }
         for (FaultToleranceRule ftRule : ftRules) {
             List<ThrottlingStrategy> strategies = ftRule.getStrategiesList().stream()
-                    .filter(e -> e.getKind().equals(ConfigKind.THROTTLING_STRATEGY.getSimpleKindName()))
-                    .map(e -> throttlingStrategyMap.get(e.getName()))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                .filter(e -> e.getKind().equals(ConfigKind.THROTTLING_STRATEGY.getSimpleKindName()))
+                .map(e -> throttlingStrategyMap.get(e.getName()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
             if (strategies.isEmpty()) {
                 continue;
             }
@@ -261,10 +260,10 @@ public class OpenSergoRuleAggregator {
         }
         for (FaultToleranceRule ftRule : ftRules) {
             List<CircuitBreakerStrategy> strategies = ftRule.getStrategiesList().stream()
-                    .filter(e -> e.getKind().equals(ConfigKind.CIRCUIT_BREAKER_STRATEGY.getSimpleKindName()))
-                    .map(e -> strategyMap.get(e.getName()))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                .filter(e -> e.getKind().equals(ConfigKind.CIRCUIT_BREAKER_STRATEGY.getSimpleKindName()))
+                .map(e -> strategyMap.get(e.getName()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
             if (strategies.isEmpty()) {
                 continue;
             }
@@ -281,7 +280,7 @@ public class OpenSergoRuleAggregator {
                         }
                     } catch (Exception ex) {
                         RecordLog.warn("Ignoring OpenSergo CircuitBreakerStrategy due to covert failure, "
-                                + "resourceName={}, strategy={}", resourceName, strategy);
+                            + "resourceName={}, strategy={}", resourceName, strategy);
                     }
                 }
             }
@@ -354,10 +353,10 @@ public class OpenSergoRuleAggregator {
                 throw new IllegalArgumentException("unknown strategy type: " + strategy.getStrategy());
         }
         int recoveryTimeoutSec = (int) (TimeUnitUtils.convertToMillis(strategy.getRecoveryTimeout(),
-                strategy.getRecoveryTimeoutTimeUnit()) / 1000);
+            strategy.getRecoveryTimeoutTimeUnit()) / 1000);
         rule.setTimeWindow(recoveryTimeoutSec);
         int statIntervalMs = (int) TimeUnitUtils.convertToMillis(strategy.getStatDuration(),
-                strategy.getStatDurationTimeUnit());
+            strategy.getStatDurationTimeUnit());
         rule.setStatIntervalMs(statIntervalMs);
         rule.setMinRequestAmount(strategy.getMinRequestAmount());
         return rule;

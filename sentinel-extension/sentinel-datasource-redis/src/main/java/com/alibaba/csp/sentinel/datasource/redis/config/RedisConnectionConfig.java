@@ -51,12 +51,6 @@ public class RedisConnectionConfig {
     private String host;
     private String redisSentinelMasterId;
     private int port;
-    private boolean sslEnable;
-    private String trustedCertificatesPath;
-    private String trustedCertificatesJksPassword;
-    private String keyCertChainFilePath;
-    private String keyFilePath;
-    private String keyFilePassword;
     private int database;
     private String clientName;
     private char[] password;
@@ -335,12 +329,6 @@ public class RedisConnectionConfig {
         private int database;
         private String clientName;
         private char[] password;
-        private boolean sslEnable;
-        private String trustedCertificatesPath;
-        private String trustedCertificatesJksPassword;
-        private String keyCertChainFilePath;
-        private String keyFilePath;
-        private String keyFilePassword;
         private long timeout = DEFAULT_TIMEOUT_MILLISECONDS;
         private final List<RedisHostAndPort> redisSentinels = new ArrayList<RedisHostAndPort>();
         private final List<RedisHostAndPort> redisClusters = new ArrayList<RedisHostAndPort>();
@@ -575,7 +563,6 @@ public class RedisConnectionConfig {
             return this;
         }
 
-
         /**
          * Configures authentication.
          *
@@ -633,75 +620,6 @@ public class RedisConnectionConfig {
         }
 
         /**
-         * Sets the sslEnable.
-         *
-         * @param sslEnable sslEnable
-         * @return the value of Builder
-         */
-        public RedisConnectionConfig.Builder withSslEnable(boolean sslEnable) {
-            this.sslEnable = sslEnable;
-            return this;
-        }
-
-        /**
-         * Sets the trustedCertificatesPath.
-         *
-         * @param trustedCertificatesPath trustedCertificatesPath
-         * @return the value of Builder
-         */
-        public RedisConnectionConfig.Builder withTrustedCertificatesPath(String trustedCertificatesPath) {
-
-            AssertUtil.notEmpty(trustedCertificatesPath, "trusted certificates path must not empty");
-
-            this.trustedCertificatesPath = trustedCertificatesPath;
-            return this;
-        }
-
-        /**
-         * Sets the trustedCertificatesJksPassword.
-         *
-         * @param trustedCertificatesJksPassword trustedCertificatesJksPassword
-         * @return the value of Builder
-         */
-        public RedisConnectionConfig.Builder withTrustedCertificatesJksPassword(String trustedCertificatesJksPassword) {
-            this.trustedCertificatesJksPassword = trustedCertificatesJksPassword;
-            return this;
-        }
-
-        /**
-         * Sets the keyCertChainFilePath.
-         *
-         * @param keyCertChainFilePath keyCertChainFilePath
-         * @return the value of Builder
-         */
-        public RedisConnectionConfig.Builder withKeyCertChainFilePath(String keyCertChainFilePath) {
-            this.keyCertChainFilePath = keyCertChainFilePath;
-            return this;
-        }
-
-        /**
-         * Sets the keyFilePath.
-         *
-         * @param keyFilePath keyFilePath
-         * @return the value of Builder
-         */
-        public RedisConnectionConfig.Builder withKeyFilePath(String keyFilePath) {
-            this.keyFilePath = keyFilePath;
-            return this;
-        }
-
-        /**
-         * Sets the keyFilePassword.
-         *
-         * @param keyFilePassword keyFilePassword
-         * @return the value of Builder
-         */
-        public RedisConnectionConfig.Builder withKeyFilePassword(String keyFilePassword) {
-            this.keyFilePassword = keyFilePassword;
-            return this;
-        }
-
-        /**
          * @return the RedisConnectionConfig.
          */
         public RedisConnectionConfig build() {
@@ -712,41 +630,32 @@ public class RedisConnectionConfig {
                         + "Sentinel");
             }
 
-            RedisConnectionConfig redisConnectionConfig = new RedisConnectionConfig();
-            redisConnectionConfig.setHost(host);
-            redisConnectionConfig.setPort(port);
-
-            if (sslEnable){
-                redisConnectionConfig.setSslEnable(true);
-                redisConnectionConfig.setTrustedCertificatesPath(trustedCertificatesPath);
-                redisConnectionConfig.setTrustedCertificatesJksPassword(trustedCertificatesJksPassword);
-                redisConnectionConfig.setKeyCertChainFilePath(keyCertChainFilePath);
-                redisConnectionConfig.setKeyFilePath(keyFilePath);
-                redisConnectionConfig.setKeyFilePassword(keyFilePassword);
-            }
+            RedisConnectionConfig redisURI = new RedisConnectionConfig();
+            redisURI.setHost(host);
+            redisURI.setPort(port);
 
             if (password != null) {
-                redisConnectionConfig.setPassword(password);
+                redisURI.setPassword(password);
             }
 
-            redisConnectionConfig.setDatabase(database);
-            redisConnectionConfig.setClientName(clientName);
+            redisURI.setDatabase(database);
+            redisURI.setClientName(clientName);
 
-            redisConnectionConfig.setRedisSentinelMasterId(redisSentinelMasterId);
+            redisURI.setRedisSentinelMasterId(redisSentinelMasterId);
 
             for (RedisHostAndPort sentinel : redisSentinels) {
-                redisConnectionConfig.getRedisSentinels().add(
+                redisURI.getRedisSentinels().add(
                     new RedisConnectionConfig(sentinel.getHost(), sentinel.getPort(), timeout));
             }
 
             for (RedisHostAndPort sentinel : redisClusters) {
-                redisConnectionConfig.getRedisClusters().add(
+                redisURI.getRedisClusters().add(
                     new RedisConnectionConfig(sentinel.getHost(), sentinel.getPort(), timeout));
             }
 
-            redisConnectionConfig.setTimeout(timeout);
+            redisURI.setTimeout(timeout);
 
-            return redisConnectionConfig;
+            return redisURI;
         }
     }
 
@@ -755,126 +664,5 @@ public class RedisConnectionConfig {
      */
     private static boolean isValidPort(int port) {
         return port >= 0 && port <= 65535;
-    }
-
-    /**
-     * Gets the value of trustedCertificatesPath.
-     *
-     * @return the value of trustedCertificatesPath
-     */
-    public String getTrustedCertificatesPath() {
-        return trustedCertificatesPath;
-    }
-
-    /**
-     * Sets the trustedCertificatesPath.
-     * <p>
-     * <p>You can use getTrustedCertificatesPath() to get the value of trustedCertificatesPath</p>
-     *
-     * @param trustedCertificatesPath trustedCertificatesPath
-     */
-    public void setTrustedCertificatesPath(String trustedCertificatesPath) {
-        this.trustedCertificatesPath = trustedCertificatesPath;
-    }
-
-    /**
-     * Gets the value of trustedCertificatesJksPassword.
-     *
-     * @return the value of trustedCertificatesJksPassword
-     */
-    public String getTrustedCertificatesJksPassword() {
-        return trustedCertificatesJksPassword;
-    }
-
-    /**
-     * Sets the trustedCertificatesJksPassword.
-     * <p>
-     * <p>You can use getTrustedCertificatesJksPassword() to get the value of trustedCertificatesJksPassword</p>
-     *
-     * @param trustedCertificatesJksPassword trustedCertificatesJksPassword
-     */
-    public void setTrustedCertificatesJksPassword(String trustedCertificatesJksPassword) {
-        this.trustedCertificatesJksPassword = trustedCertificatesJksPassword;
-    }
-
-    /**
-     * Gets the value of keyCertChainFilePath.
-     *
-     * @return the value of keyCertChainFilePath
-     */
-    public String getKeyCertChainFilePath() {
-        return keyCertChainFilePath;
-    }
-
-    /**
-     * Sets the keyCertChainFilePath.
-     * <p>
-     * <p>You can use getKeyCertChainFilePath() to get the value of keyCertChainFilePath</p>
-     *
-     * @param keyCertChainFilePath keyCertChainFilePath
-     */
-    public void setKeyCertChainFilePath(String keyCertChainFilePath) {
-        this.keyCertChainFilePath = keyCertChainFilePath;
-    }
-
-    /**
-     * Gets the value of keyFilePath.
-     *
-     * @return the value of keyFilePath
-     */
-    public String getKeyFilePath() {
-        return keyFilePath;
-    }
-
-    /**
-     * Sets the keyFilePath.
-     * <p>
-     * <p>You can use getKeyFilePath() to get the value of keyFilePath</p>
-     *
-     * @param keyFilePath keyFilePath
-     */
-    public void setKeyFilePath(String keyFilePath) {
-        this.keyFilePath = keyFilePath;
-    }
-
-    /**
-     * Gets the value of keyFilePassword.
-     *
-     * @return the value of keyFilePassword
-     */
-    public String getKeyFilePassword() {
-        return keyFilePassword;
-    }
-
-    /**
-     * Sets the keyFilePassword.
-     * <p>
-     * <p>You can use getKeyFilePassword() to get the value of keyFilePassword</p>
-     *
-     * @param keyFilePassword keyFilePassword
-     */
-    public void setKeyFilePassword(String keyFilePassword) {
-        this.keyFilePassword = keyFilePassword;
-    }
-
-    /**
-     * Sets the sslEnable.
-     * <p>
-     * <p>You can use isSslEnable() to get the value of sslEnable</p>
-     *
-     * @param sslEnable sslEnable
-     */
-    public void setSslEnable(boolean sslEnable) {
-        this.sslEnable = sslEnable;
-    }
-
-
-    /**
-     * Gets the value of sslEnable.
-     *
-     * @return the value of sslEnable
-     */
-    public boolean isSslEnable() {
-        return sslEnable;
     }
 }
