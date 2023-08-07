@@ -140,7 +140,7 @@ public class TransportConfig {
         if (runtimePort > 0) {
             return String.valueOf(runtimePort);
         }
-        return SentinelConfig.getConfig(SERVER_PORT, true);
+        return SentinelConfig.getConfig(SERVER_PORT);
     }
 
     /**
@@ -159,7 +159,7 @@ public class TransportConfig {
      * @return the local ip.
      */
     public static String getHeartbeatClientIp() {
-        String ip = SentinelConfig.getConfig(HEARTBEAT_CLIENT_IP, true);
+        String ip = SentinelConfig.getConfig(HEARTBEAT_CLIENT_IP);
         if (StringUtil.isBlank(ip)) {
             ip = HostNameUtil.getIp();
         }

@@ -31,6 +31,7 @@ import org.springframework.web.reactive.result.view.ViewResolver;
 /**
  * @author Eric Zhao
  */
+@Configuration
 public class WebFluxConfig {
 
     private final List<ViewResolver> viewResolvers;

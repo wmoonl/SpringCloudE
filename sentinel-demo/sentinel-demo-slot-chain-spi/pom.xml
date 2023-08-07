@@ -9,12 +9,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>sentinel-demo-cluster</artifactId>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>sentinel-demo-cluster-embedded</module>
-        <module>sentinel-demo-cluster-server-alone</module>
-    </modules>
+    <artifactId>sentinel-demo-slot-chain-spi</artifactId>
 
 </project>
