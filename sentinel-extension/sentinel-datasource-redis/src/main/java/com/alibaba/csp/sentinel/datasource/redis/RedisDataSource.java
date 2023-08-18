@@ -25,20 +25,13 @@ import com.alibaba.csp.sentinel.util.StringUtil;
 
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.SslOptions;
 import io.lettuce.core.api.sync.RedisCommands;
-import io.lettuce.core.cluster.ClusterClientOptions;
-import io.lettuce.core.cluster.RedisClusterClient;
-import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
-import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.pubsub.api.sync.RedisPubSubCommands;
 
-import java.io.File;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -66,8 +59,6 @@ public class RedisDataSource<T> extends AbstractDataSource<String, T> {
 
     private final RedisClient redisClient;
 
-    private final RedisClusterClient redisClusterClient;
-
     private final String ruleKey;
 
     /**
@@ -84,59 +75,10 @@ public class RedisDataSource<T> extends AbstractDataSource<String, T> {
         AssertUtil.notNull(connectionConfig, "Redis connection config can not be null");
         AssertUtil.notEmpty(ruleKey, "Redis ruleKey can not be empty");
         AssertUtil.notEmpty(channel, "Redis subscribe channel can not be empty");
-        if (connectionConfig.getRedisClusters().size() == 0) {
-            this.redisClient = getRedisClient(connectionConfig);
-            this.redisClusterClient = null;
-        } else {
-            this.redisClusterClient = getRedisClusterClient(connectionConfig);
-            this.redisClient = null;
-        }
+        this.redisClient = getRedisClient(connectionConfig);
         this.ruleKey = ruleKey;
         loadInitialConfig();
         subscribeFromChannel(channel);
-    }
-
-    /**
-     * init SslOptions, support jks or pem format
-     *
-     * @param connectionConfig Redis connection config
-     * @return a new SslOptions
-     */
-    private SslOptions initSslOptions(RedisConnectionConfig connectionConfig) {
-        if (!connectionConfig.isSslEnable()){
-            return null;
-        }
-
-        SslOptions.Builder sslOptionsBuilder = SslOptions.builder();
-
-        if (connectionConfig.getTrustedCertificatesPath() != null){
-            if (connectionConfig.getTrustedCertificatesPath().endsWith(".jks")){
-                // if the value is end with .jks，think it is java key store format，to invoke truststore method
-                sslOptionsBuilder.truststore(
-                        new File(connectionConfig.getTrustedCertificatesPath()),
-                        connectionConfig.getTrustedCertificatesJksPassword()
-                );
-            } else {
-                // if the value is not end with .jks，think it is pem format，to invoke trustManager method
-                sslOptionsBuilder.trustManager(new File(connectionConfig.getTrustedCertificatesPath()));
-            }
-        }
-
-        if (connectionConfig.getKeyCertChainFilePath() != null || connectionConfig.getKeyFilePath() != null) {
-            if (connectionConfig.getKeyFilePath().endsWith(".jks")){
-                sslOptionsBuilder.keystore(
-                        new File(connectionConfig.getKeyCertChainFilePath()),
-                        connectionConfig.getKeyFilePassword() == null ? null : connectionConfig.getKeyFilePassword().toCharArray()
-                );
-            } else {
-                sslOptionsBuilder.keyManager(
-                        new File(connectionConfig.getKeyCertChainFilePath()),
-                        new File(connectionConfig.getKeyFilePath()),
-                        connectionConfig.getKeyFilePassword() == null ? null : connectionConfig.getKeyFilePassword().toCharArray()
-                );
-            }
-        }
-        return sslOptionsBuilder.build();
     }
 
     /**
@@ -145,51 +87,14 @@ public class RedisDataSource<T> extends AbstractDataSource<String, T> {
      * @return a new {@link RedisClient}
      */
     private RedisClient getRedisClient(RedisConnectionConfig connectionConfig) {
-        RedisClient redisClient;
         if (connectionConfig.getRedisSentinels().size() == 0) {
             RecordLog.info("[RedisDataSource] Creating stand-alone mode Redis client");
-            redisClient = getRedisStandaloneClient(connectionConfig);
+            return getRedisStandaloneClient(connectionConfig);
         } else {
             RecordLog.info("[RedisDataSource] Creating Redis Sentinel mode Redis client");
-            redisClient = getRedisSentinelClient(connectionConfig);
+            return getRedisSentinelClient(connectionConfig);
         }
-        SslOptions sslOptions = initSslOptions(connectionConfig);
-        if (sslOptions != null){
-            redisClient.setOptions(
-                    ClusterClientOptions.builder().sslOptions(sslOptions).build()
-            );
-        }
-        return redisClient;
     }
-
-    private RedisClusterClient getRedisClusterClient(RedisConnectionConfig connectionConfig) {
-        char[] password = connectionConfig.getPassword();
-        String clientName = connectionConfig.getClientName();
-
-        //If any uri is successful for connection, the others are not tried anymore
-        List<RedisURI> redisUris = new ArrayList<>();
-        for (RedisConnectionConfig config : connectionConfig.getRedisClusters()) {
-            RedisURI.Builder clusterRedisUriBuilder = RedisURI.builder();
-            clusterRedisUriBuilder.withHost(config.getHost())
-                .withPort(config.getPort())
-                .withSsl(config.isSslEnable())
-                .withTimeout(Duration.ofMillis(connectionConfig.getTimeout()));
-            //All redis nodes must have same password
-            if (password != null) {
-                clusterRedisUriBuilder.withPassword(connectionConfig.getPassword());
-            }
-            redisUris.add(clusterRedisUriBuilder.build());
-        }
-        RedisClusterClient redisClusterClient =  RedisClusterClient.create(redisUris);
-        SslOptions sslOptions = initSslOptions(connectionConfig);
-        if (sslOptions != null){
-            redisClusterClient.setOptions(
-                    ClusterClientOptions.builder().sslOptions(sslOptions).build()
-            );
-        }
-        return redisClusterClient;
-    }
-
 
     private RedisClient getRedisStandaloneClient(RedisConnectionConfig connectionConfig) {
         char[] password = connectionConfig.getPassword();
@@ -198,7 +103,6 @@ public class RedisDataSource<T> extends AbstractDataSource<String, T> {
         redisUriBuilder.withHost(connectionConfig.getHost())
             .withPort(connectionConfig.getPort())
             .withDatabase(connectionConfig.getDatabase())
-            .withSsl(connectionConfig.isSslEnable())
             .withTimeout(Duration.ofMillis(connectionConfig.getTimeout()));
         if (password != null) {
             redisUriBuilder.withPassword(connectionConfig.getPassword());
@@ -223,24 +127,16 @@ public class RedisDataSource<T> extends AbstractDataSource<String, T> {
             sentinelRedisUriBuilder.withClientName(clientName);
         }
         sentinelRedisUriBuilder.withSentinelMasterId(connectionConfig.getRedisSentinelMasterId())
-            .withSsl(connectionConfig.isSslEnable())
-            .withTimeout(Duration.ofMillis(connectionConfig.getTimeout()));
+            .withTimeout(connectionConfig.getTimeout(), TimeUnit.MILLISECONDS);
         return RedisClient.create(sentinelRedisUriBuilder.build());
     }
 
     private void subscribeFromChannel(String channel) {
+        StatefulRedisPubSubConnection<String, String> pubSubConnection = redisClient.connectPubSub();
         RedisPubSubAdapter<String, String> adapterListener = new DelegatingRedisPubSubListener();
-        if (redisClient != null) {
-            StatefulRedisPubSubConnection<String, String> pubSubConnection = redisClient.connectPubSub();
-            pubSubConnection.addListener(adapterListener);
-            RedisPubSubCommands<String, String> sync = pubSubConnection.sync();
-            sync.subscribe(channel);
-        } else {
-            StatefulRedisClusterPubSubConnection<String, String> pubSubConnection = redisClusterClient.connectPubSub();
-            pubSubConnection.addListener(adapterListener);
-            RedisPubSubCommands<String, String> sync = pubSubConnection.sync();
-            sync.subscribe(channel);
-        }
+        pubSubConnection.addListener(adapterListener);
+        RedisPubSubCommands<String, String> sync = pubSubConnection.sync();
+        sync.subscribe(channel);
     }
 
     private void loadInitialConfig() {
@@ -257,27 +153,16 @@ public class RedisDataSource<T> extends AbstractDataSource<String, T> {
 
     @Override
     public String readSource() {
-        if (this.redisClient == null && this.redisClusterClient == null) {
-            throw new IllegalStateException("Redis client or Redis Cluster client has not been initialized or error occurred");
+        if (this.redisClient == null) {
+            throw new IllegalStateException("Redis client has not been initialized or error occurred");
         }
-
-        if (redisClient != null) {
-            RedisCommands<String, String> stringRedisCommands = redisClient.connect().sync();
-            return stringRedisCommands.get(ruleKey);
-        } else {
-            RedisAdvancedClusterCommands<String, String> stringRedisCommands = redisClusterClient.connect().sync();
-            return stringRedisCommands.get(ruleKey);
-        }
+        RedisCommands<String, String> stringRedisCommands = redisClient.connect().sync();
+        return stringRedisCommands.get(ruleKey);
     }
 
     @Override
     public void close() {
-        if (redisClient != null) {
-            redisClient.shutdown();
-        } else {
-            redisClusterClient.shutdown();
-        }
-
+        redisClient.shutdown();
     }
 
     private class DelegatingRedisPubSubListener extends RedisPubSubAdapter<String, String> {

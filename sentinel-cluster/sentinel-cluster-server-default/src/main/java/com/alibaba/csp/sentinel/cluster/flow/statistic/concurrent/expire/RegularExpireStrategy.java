@@ -66,7 +66,7 @@ public class RegularExpireStrategy implements ExpireStrategy {
 
     @SuppressWarnings("PMD.ThreadPoolCreationRule")
     private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
-            new NamedThreadFactory("regular clear expired token thread", true));
+            new NamedThreadFactory("regular clear expired token thread"));
 
 
     public RegularExpireStrategy(ConcurrentLinkedHashMap<Long, TokenCacheNode> localCache) {

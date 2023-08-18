@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.alibaba.csp.sentinel.dashboard.auth.AuthAction;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.PrivilegeType;
-import com.alibaba.csp.sentinel.dashboard.discovery.AppManagement;
 import com.alibaba.csp.sentinel.util.StringUtil;
 
 import com.alibaba.csp.sentinel.dashboard.client.SentinelApiClient;
@@ -58,8 +57,6 @@ public class FlowControllerV1 {
 
     @Autowired
     private InMemoryRuleRepositoryAdapter<FlowRuleEntity> repository;
-    @Autowired
-    private AppManagement appManagement;
 
     @Autowired
     private SentinelApiClient sentinelApiClient;
@@ -69,6 +66,7 @@ public class FlowControllerV1 {
     public Result<List<FlowRuleEntity>> apiQueryMachineRules(@RequestParam String app,
                                                              @RequestParam String ip,
                                                              @RequestParam Integer port) {
+
         if (StringUtil.isEmpty(app)) {
             return Result.ofFail(-1, "app can't be null or empty");
         }
@@ -77,9 +75,6 @@ public class FlowControllerV1 {
         }
         if (port == null) {
             return Result.ofFail(-1, "port can't be null");
-        }
-        if (!appManagement.isValidMachineOfApp(app, ip)) {
-            return Result.ofFail(-1, "given ip does not belong to given app");
         }
         try {
             List<FlowRuleEntity> rules = sentinelApiClient.fetchFlowRuleOfMachine(app, ip, port);
@@ -100,9 +95,6 @@ public class FlowControllerV1 {
         }
         if (entity.getPort() == null) {
             return Result.ofFail(-1, "port can't be null");
-        }
-        if (!appManagement.isValidMachineOfApp(entity.getApp(), entity.getIp())) {
-            return Result.ofFail(-1, "given ip does not belong to given app");
         }
         if (StringUtil.isBlank(entity.getLimitApp())) {
             return Result.ofFail(-1, "limitApp can't be null or empty");

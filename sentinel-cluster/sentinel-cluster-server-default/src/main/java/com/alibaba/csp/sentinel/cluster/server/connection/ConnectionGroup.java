@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.alibaba.csp.sentinel.cluster.server.ServerConstants;
@@ -35,7 +34,7 @@ public class ConnectionGroup {
 
     private final String namespace;
 
-    private final Set<ConnectionDescriptor> connectionSet = new CopyOnWriteArraySet<>();
+    private final Set<ConnectionDescriptor> connectionSet = Collections.synchronizedSet(new HashSet<ConnectionDescriptor>());
     private final AtomicInteger connectedCount = new AtomicInteger();
 
     public ConnectionGroup(String namespace) {

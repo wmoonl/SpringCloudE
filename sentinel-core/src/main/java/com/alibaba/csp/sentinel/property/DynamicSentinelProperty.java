@@ -15,14 +15,15 @@
  */
 package com.alibaba.csp.sentinel.property;
 
-import com.alibaba.csp.sentinel.log.RecordLog;
-
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+
+import com.alibaba.csp.sentinel.log.RecordLog;
 
 public class DynamicSentinelProperty<T> implements SentinelProperty<T> {
 
-    protected Set<PropertyListener<T>> listeners = new CopyOnWriteArraySet<>();
+    protected Set<PropertyListener<T>> listeners = Collections.synchronizedSet(new HashSet<PropertyListener<T>>());
     private T value = null;
 
     public DynamicSentinelProperty() {

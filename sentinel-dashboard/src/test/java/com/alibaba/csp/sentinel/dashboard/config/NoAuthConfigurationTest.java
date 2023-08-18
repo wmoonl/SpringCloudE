@@ -20,7 +20,6 @@ import com.alibaba.csp.sentinel.dashboard.auth.FakeAuthServiceImpl;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -34,8 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 public class NoAuthConfigurationTest {
 
     @Bean
-    @Primary
-    public AuthService<HttpServletRequest> httpServletRequestNoopAuthService() {
+    public AuthService<HttpServletRequest> httpServletRequestAuthService() {
         return new FakeAuthServiceImpl();
     }
 

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sentinel-extension</artifactId>
         <groupId>com.alibaba.csp</groupId>
-        <version>2.0.0-alpha</version>
+        <version>1.8.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,7 +13,9 @@
     <packaging>jar</packaging>
 
     <properties>
-        <curator.version>5.1.0</curator.version>
+        <zookeeper.version>3.4.14</zookeeper.version>
+        <curator.version>4.0.1</curator.version>
+        <curator.test.version>2.12.0</curator.test.version>
     </properties>
 
     <dependencies>
@@ -23,9 +25,20 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>${zookeeper.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-recipes</artifactId>
             <version>${curator.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.zookeeper</groupId>
+                    <artifactId>zookeeper</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -41,8 +54,14 @@
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-test</artifactId>
-            <version>${curator.version}</version>
+            <version>${curator.test.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.zookeeper</groupId>
+                    <artifactId>zookeeper</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>

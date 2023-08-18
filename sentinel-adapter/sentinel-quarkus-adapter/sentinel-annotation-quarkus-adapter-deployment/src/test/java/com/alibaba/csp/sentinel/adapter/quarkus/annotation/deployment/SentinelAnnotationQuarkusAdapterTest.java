@@ -36,7 +36,6 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author sea
@@ -93,7 +92,7 @@ public class SentinelAnnotationQuarkusAdapterTest {
                 new FlowRule(resourceName).setCount(0)
         ));
 
-        assertThrows(ArcUndeclaredThrowableException.class, () -> {
+        Assertions.assertThrows(ArcUndeclaredThrowableException.class, () -> {
             fooService.baz("Sentinel");
         });
     }
@@ -105,10 +104,13 @@ public class SentinelAnnotationQuarkusAdapterTest {
         ClusterNode cn = ClusterBuilderSlot.getClusterNode(resourceName);
         assertThat(cn).isNotNull();
         assertThat(cn.passQps()).isPositive();
-        assertThrows(IllegalMonitorStateException.class, () -> {
+
+        try {
             fooService.baz("fail");
-        });
-        assertThat(cn.exceptionQps()).isZero();
+            fail("should not reach here");
+        } catch (IllegalMonitorStateException ex) {
+            assertThat(cn.exceptionQps()).isZero();
+        }
     }
 
     @Test

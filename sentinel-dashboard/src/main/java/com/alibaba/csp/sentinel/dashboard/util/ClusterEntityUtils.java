@@ -130,8 +130,7 @@ public final class ClusterEntityUtils {
             if (mode == ClusterStateManager.CLUSTER_SERVER) {
                 String serverAddress = getIp(ip);
                 int port = stateVO.getState().getServer().getPort();
-                String targetAddress = serverAddress + ":" + port;
-                map.computeIfAbsent(targetAddress, v -> new ClusterGroupEntity()
+                map.computeIfAbsent(serverAddress, v -> new ClusterGroupEntity()
                     .setBelongToApp(true).setMachineId(ip + '@' + stateVO.getCommandPort())
                     .setIp(ip).setPort(port)
                 );
@@ -146,8 +145,8 @@ public final class ClusterEntityUtils {
                 if (StringUtil.isBlank(targetServer) || targetPort == null || targetPort <= 0) {
                     continue;
                 }
-                String targetAddress = targetServer + ":" + targetPort;
-                ClusterGroupEntity group = map.computeIfAbsent(targetAddress,
+
+                ClusterGroupEntity group = map.computeIfAbsent(targetServer,
                     v -> new ClusterGroupEntity()
                         .setBelongToApp(true).setMachineId(targetServer)
                         .setIp(targetServer).setPort(targetPort)

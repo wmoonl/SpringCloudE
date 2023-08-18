@@ -92,8 +92,7 @@ public class SystemRuleManagerTest {
 
         boolean blocked = false;
         try {
-            StringResourceWrapper resourceWrapper = new StringResourceWrapper("testCheckMaxCpuUsageNotBBR", EntryType.IN);
-            SystemRuleManager.checkSystem(resourceWrapper, 1);
+            SystemRuleManager.checkSystem(new StringResourceWrapper("testCheckMaxCpuUsageNotBBR", EntryType.IN));
         } catch (BlockException ex) {
             blocked = true;
         }

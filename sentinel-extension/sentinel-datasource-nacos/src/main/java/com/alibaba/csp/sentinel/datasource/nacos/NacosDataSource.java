@@ -47,7 +47,7 @@ public class NacosDataSource<T> extends AbstractDataSource<String, T> {
      * Single-thread pool. Once the thread pool is blocked, we throw up the old task.
      */
     private final ExecutorService pool = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS,
-        new ArrayBlockingQueue<Runnable>(1), new NamedThreadFactory("sentinel-nacos-ds-update", true),
+        new ArrayBlockingQueue<Runnable>(1), new NamedThreadFactory("sentinel-nacos-ds-update"),
         new ThreadPoolExecutor.DiscardOldestPolicy());
 
     private final Listener configListener;
@@ -145,12 +145,6 @@ public class NacosDataSource<T> extends AbstractDataSource<String, T> {
     public void close() {
         if (configService != null) {
             configService.removeListener(dataId, groupId, configListener);
-            try {
-                configService.shutDown();
-            } catch (Exception e) {
-                RecordLog.warn("[NacosDataSource] Error occurred when closing Nacos data source", e);
-                e.printStackTrace();
-            }
         }
         pool.shutdownNow();
     }

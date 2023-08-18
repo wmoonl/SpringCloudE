@@ -18,7 +18,6 @@ package com.alibaba.csp.sentinel.slots.logger;
 import com.alibaba.csp.sentinel.eagleeye.EagleEye;
 import com.alibaba.csp.sentinel.eagleeye.StatLogger;
 import com.alibaba.csp.sentinel.log.LogBase;
-import com.alibaba.csp.sentinel.util.StringUtil;
 
 public class EagleEyeLogUtil {
 
@@ -41,11 +40,7 @@ public class EagleEyeLogUtil {
             .buildSingleton();
     }
 
-    public static void log(String resource, String exceptionName, String ruleLimitApp, String origin, Long ruleId, int count) {
-        String ruleIdString = StringUtil.EMPTY;
-        if (ruleId != null) {
-            ruleIdString = String.valueOf(ruleId);
-        }
-        statLogger.stat(resource, exceptionName, ruleLimitApp, origin, ruleIdString).count(count);
+    public static void log(String resource, String exceptionName, String ruleLimitApp, String origin, int count) {
+        statLogger.stat(resource, exceptionName, ruleLimitApp, origin).count(count);
     }
 }

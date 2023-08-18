@@ -3,7 +3,6 @@
 ## Env Requirement
 
 - Node.js > 6.x
-- Node.js < 12.x
 
 ## Code Guide
 
